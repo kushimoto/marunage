@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const { NodeSSH } = require('node-ssh');
 const { Client } = requier('ssh2');
-const yaml = requier('js-yaml')
+const yaml = require('js-yaml')
 
 let mainWindow;
 const startUrl = process.env.ELECTRON_START_URL
