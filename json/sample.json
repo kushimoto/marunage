@@ -1,7 +1,0 @@
-{
-    "commands": [
-        "uname -a",
-        "sleep 5", 
-        "false"
-    ]
-}

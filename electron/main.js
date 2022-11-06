@@ -53,33 +53,10 @@ app.whenReady().then(() => {
     })
 
     ipcMain.handle('exec-cmd-by-ssh', async (event, cmd, passwd) => {
-        let res = ''
         if ( ~cmd.indexOf('sudo')) {
-            await connection.on('ready', () => {
-                connection.shell((err, stream) => {
-                    if (err) throw err;
-                    stream.on('close', () => {
-                        connection.end();
-                    }).on('data', (data) => {
-                        res = data.toString()
-                    })
-                    stream.end(cmd)
-                })
-            })
-            return res
+            return await ssh.execCommand(cmd, {stdin: passwd + '\n', options: {pty: true}})
         }
-        await connection.on('ready', () => {
-            connection.shell((err, stream) => {
-                if (err) throw err;
-                stream.on('close', () => {
-                    connection.end();
-                }).on('data', (data) => {
-                    res = data.toString()
-                })
-                stream.end(cmd)
-            })
-        }) 
-        return res
+        return await ssh.execCommand(cmd, {options: {pty: true}}) 
     })
 
     ipcMain.handle('disconnect-ssh', async(event) => {

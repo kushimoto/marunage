@@ -20,8 +20,8 @@ dist フォルダが作成されますので、中にある exe ファイルを�
 下記のフォーマットで実行したいコマンドを羅列して、アプリケーション側で実行して下さい。
 
 ```yaml
-commands: |
-  uname -a
-  sleep 5
-  false
+commands:
+  - uname -a
+  - sleep 5
+  - 'false'
 ```
