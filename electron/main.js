@@ -34,7 +34,7 @@ app.whenReady().then(() => {
     ipcMain.handle('connect-ssh', async (event, hostAddress, hostUserName, hostUserPassword) => {
         
         return new Promise ((resolve, reject) => {
-            connection.connect({
+            ssh.connect({
                 host: hostAddress,
                 port: 22,
                 username: hostUserName,
