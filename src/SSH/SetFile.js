@@ -12,10 +12,10 @@ const SetFile = ({ filePath, setFilePath, setTarget}) => {
     }
     
     useEffect(() => {
-        const openJson = async () => {
-            setTarget(await window.electronAPI.fileOpenAsJSON(filePath))
+        const openYaml = async () => {
+            setTarget(await window.electronAPI.fileOpenAsYAML(filePath))
         }
-        openJson()
+        openYaml()
     }, [filePath])
 
     return (
