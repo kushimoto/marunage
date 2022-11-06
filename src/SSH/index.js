@@ -27,21 +27,15 @@ function SSH() {
     const scrollRef = useRef(null)
 
     const handleExecCmd = () => {
-        (async () => {
-            setComplete(false)
-            setOutputs("")
-            for (let i = 0; i < target.commands.length; i++) {
-                const res = await window.electronAPI.execCmdBySSH(target.commands[i], atob(hostUserPassword))
-                setOutputs((prevOutputs) => `${typeof prevOutputs !== "undefined" ? `${prevOutputs}\n` : ""}> ${target.commands[i]}\n`)
-                if (res.code > 0) {
-                    setOpenWarning(true)
-                    setOutputs((prevOutputs) => `${prevOutputs}${res.stderr}\n失敗しました`)
-                    break
-                }
-                setOutputs((prevOutputs) => `${prevOutputs}${res.stdout}`)
-            }
-            setComplete(true)
-        })();
+        setComplete(false)
+        setOutputs("")
+        let line = ''
+        for (let i = 0; i < target.commands.length; i++) {
+            line += target.commands[i]
+        }
+        const res = window.electronAPI.execCmdBySSH(line, atob(hostUserPassword))
+        setOutputs((prevOutputs) => `${prevOutputs}${res}`)
+        setComplete(true)
     }
 
     const handleDisconnectSSH = () => {

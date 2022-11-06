@@ -3,6 +3,8 @@ const { ipcMain } = require("electron");
 const fs = require("fs");
 const path = require("path");
 const { NodeSSH } = require('node-ssh');
+const { Client } = requier('ssh2');
+const yaml = requier('js-yaml')
 
 let mainWindow;
 const startUrl = process.env.ELECTRON_START_URL
@@ -27,13 +29,14 @@ const createWindow = () => {
 };
 
 const ssh = new NodeSSH()
+const connection = new Client()
 
 app.whenReady().then(() => {
 
     ipcMain.handle('connect-ssh', async (event, hostAddress, hostUserName, hostUserPassword) => {
         
         return new Promise ((resolve, reject) => {
-            ssh.connect({
+            connection.connect({
                 host: hostAddress,
                 port: 22,
                 username: hostUserName,
@@ -52,11 +55,33 @@ app.whenReady().then(() => {
     })
 
     ipcMain.handle('exec-cmd-by-ssh', async (event, cmd, passwd) => {
-        console.log(cmd)
+        let res = ''
         if ( ~cmd.indexOf('sudo')) {
-            return await ssh.execCommand(cmd, {stdin: passwd + '\n', options: {pty: true}})
+            await connection.on('ready', () => {
+                connection.shell((err, stream) => {
+                    if (err) throw err;
+                    stream.on('close', () => {
+                        connection.end();
+                    }).on('data', (data) => {
+                        res = data.toString()
+                    })
+                    stream.end(cmd)
+                })
+            })
+            return res
         }
-        return await ssh.execCommand(cmd, {options: {pty: true}})
+        await connection.on('ready', () => {
+            connection.shell((err, stream) => {
+                if (err) throw err;
+                stream.on('close', () => {
+                    connection.end();
+                }).on('data', (data) => {
+                    res = data.toString()
+                })
+                stream.end(cmd)
+            })
+        }) 
+        return res
     })
 
     ipcMain.handle('disconnect-ssh', async(event) => {
@@ -70,8 +95,8 @@ app.whenReady().then(() => {
             title: 'ファイルを選択する',
             filters: [
                 {
-                    name: 'JSONファイル',
-                    extensions: ['json'],
+                    name: 'YAMLファイル',
+                    extensions: ['yaml'],
                 },
             ],
         })
@@ -82,7 +107,7 @@ app.whenReady().then(() => {
         .catch((err) => console.log(`Error: ${err}`))
     })
 
-    ipcMain.handle('file-open-as-json', async (event, target) => {
+    ipcMain.handle('file-open-as-yaml', async (event, target) => {
         return new Promise ((resolve, reject) => {
             try {
                 file = fs.readFileSync(target)
@@ -92,8 +117,8 @@ app.whenReady().then(() => {
             }
         }).then((file) => {
             try {
-                json = JSON.parse(file)
-                return json
+                yml = yaml.load(file)
+                return yml 
             } catch (err) {
                 return err.toString()
             }
