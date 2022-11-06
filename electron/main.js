@@ -3,8 +3,7 @@ const { ipcMain } = require("electron");
 const fs = require("fs");
 const path = require("path");
 const { NodeSSH } = require('node-ssh');
-const { Client } = requier('ssh2');
-const yaml = requier('js-yaml')
+const yaml = require('js-yaml')
 
 let mainWindow;
 const startUrl = process.env.ELECTRON_START_URL
@@ -29,7 +28,6 @@ const createWindow = () => {
 };
 
 const ssh = new NodeSSH()
-const connection = new Client()
 
 app.whenReady().then(() => {
 
